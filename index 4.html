@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>グレン・ハイマ 喫煙観測所</title>
+
+  <style>
+    :root {
+      --bg: #080607;
+      --panel: rgba(20, 10, 14, 0.72);
+      --red: #7d1024;
+      --rose: #b71f3b;
+      --text: #f8eef1;
+      --muted: #caaab2;
+      --line: rgba(255,255,255,0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Times New Roman","Yu Mincho","Hiragino Mincho ProN",serif;
+
+      background:
+        radial-gradient(circle at 50% 20%, rgba(125,16,36,0.35), transparent 30%),
+        linear-gradient(160deg,#050404 0%,#12070a 48%,#050404 100%);
+
+      overflow-x: hidden;
+    }
+
+    .smoke {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+
+      background:
+        radial-gradient(circle at 40% 70%, rgba(255,255,255,0.13), transparent 16%),
+        radial-gradient(circle at 60% 42%, rgba(255,255,255,0.08), transparent 15%);
+
+      filter: blur(26px);
+
+      animation: drift 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translateY(20px);
+      }
+
+      to {
+        transform: translateY(-30px) scale(1.05);
+      }
+    }
+
+    main {
+      min-height: 100vh;
+
+      display: grid;
+      place-items: center;
+
+      padding: 24px;
+
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      width: min(94vw, 620px);
+
+      background: var(--panel);
+
+      border: 1px solid var(--line);
+      border-radius: 28px;
+
+      padding: 42px 24px;
+
+      text-align: center;
+
+      backdrop-filter: blur(16px);
+
+      box-shadow: 0 20px 80px rgba(0,0,0,0.55);
+    }
+
+    .icon {
+      font-size: 32px;
+
+      margin-bottom: 6px;
+
+      filter: drop-shadow(0 0 14px rgba(183,31,59,0.5));
+    }
+
+    h1 {
+      margin: 0 auto;
+
+      width: 100%;
+
+      text-align: center;
+
+      font-size: clamp(24px, 4.8vw, 44px);
+
+      font-weight: 500;
+
+      letter-spacing: 0.01em;
+
+      line-height: 1.3;
+
+      white-space: nowrap;
+    }
+
+    .sub {
+      margin-top: 14px;
+
+      color: var(--muted);
+
+      letter-spacing: 0.22em;
+
+      font-size: 12px;
+
+      text-transform: uppercase;
+    }
+
+    .count-wrap {
+      margin: 28px 0 20px;
+
+      padding: 20px 0;
+
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .label {
+      color: var(--muted);
+
+      font-size: 14px;
+
+      letter-spacing: 0.14em;
+
+      margin-bottom: 12px;
+    }
+
+    .count {
+      font-size: clamp(92px,24vw,150px);
+
+      line-height: 0.9;
+
+      text-shadow:
+        0 0 18px rgba(183,31,59,0.6),
+        0 0 42px rgba(125,16,36,0.6);
+    }
+
+    .unit {
+      font-size: clamp(24px,7vw,38px);
+
+      color: var(--muted);
+
+      margin-left: 8px;
+    }
+
+    .message {
+      min-height: 1.8em;
+
+      font-size: 18px;
+
+      color: #f3dce2;
+
+      line-height: 1.8;
+    }
+
+    .updated {
+      margin-top: 18px;
+
+      color: var(--muted);
+
+      font-size: 13px;
+    }
+
+    .reload {
+      margin-top: 24px;
+
+      padding: 10px 18px;
+
+      border-radius: 999px;
+
+      border: 1px solid rgba(255,255,255,0.18);
+
+      background: rgba(125,16,36,0.18);
+
+      color: white;
+
+      cursor: pointer;
+
+      font-family: inherit;
+
+      font-size: 16px;
+    }
+
+    @media (max-width: 480px) {
+
+      .card {
+        width: 94vw;
+
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      h1 {
+        font-size: 22px;
+
+        letter-spacing: 0;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="smoke"></div>
+
+<main>
+
+  <section class="card">
+
+    <div class="icon">🍷🦇</div>
+
+    <h1 id="title">グレン・ハイマ 喫煙観測所</h1>
+
+    <div class="sub">
+      Smoke Observation
+    </div>
+
+    <div class="count-wrap">
+
+      <div class="label">
+        現在の本数
+      </div>
+
+      <div>
+        <span class="count" id="count">--</span>
+        <span class="unit">本</span>
+      </div>
+
+    </div>
+
+    <div class="message" id="message">
+      観測中……
+    </div>
+
+    <div class="updated" id="updated">
+      Last update --
+    </div>
+
+    <button class="reload" onclick="loadData()">
+      再観測
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSjPcQFt9EOQBDao2AgNSvQFdhtZ11bEWBG2Y0m9oegrh-SBzdrwokqgz3128YpXGG7yJq1dgF_7I5D/pub?output=csv";
+
+function parseCSV(text) {
+
+  const rows = [];
+
+  let row = [];
+  let cell = "";
+
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+
+      cell += '"';
+      i++;
+
+    } else if (char === '"') {
+
+      inQuotes = !inQuotes;
+
+    } else if (char === "," && !inQuotes) {
+
+      row.push(cell);
+
+      cell = "";
+
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+
+      if (cell || row.length) {
+
+        row.push(cell);
+
+        rows.push(row);
+
+        row = [];
+
+        cell = "";
+
+      }
+
+      if (char === "\r" && next === "\n") i++;
+
+    } else {
+
+      cell += char;
+
+    }
+
+  }
+
+  if (cell || row.length) {
+
+    row.push(cell);
+
+    rows.push(row);
+
+  }
+
+  return rows;
+
+}
+
+async function loadData() {
+
+  try {
+
+    const res = await fetch(CSV_URL + "&t=" + Date.now());
+
+    const text = await res.text();
+
+    const rows = parseCSV(text).filter(r => r.some(c => c.trim() !== ""));
+
+    const headers = rows[0].map(h => h.trim());
+
+    const values = rows[1].map(v => v.trim());
+
+    const data = {};
+
+    headers.forEach((h,i) => data[h] = values[i]);
+
+    document.getElementById("title").textContent = "グレン・ハイマ 喫煙観測所";
+
+    document.getElementById("count").textContent = data.count || "0";
+
+    document.getElementById("message").textContent = data.message || "静かな夜";
+
+    document.getElementById("updated").textContent =
+      "Last update " + (data.updated || "--");
+
+  } catch(e) {
+
+    console.error(e);
+
+  }
+
+}
+
+loadData();
+
+setInterval(loadData, 30000);
+
+</script>
+
+</body>
+</html>
